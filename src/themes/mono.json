@@ -1,0 +1,20 @@
+{
+  "id": "mono",
+  "name": "Mono Terminal",
+  "author": "Pulse",
+  "layout": "compact",
+  "vars": {
+    "--bg": "#101010",
+    "--bg-image": "none",
+    "--surface": "#171717",
+    "--surface-2": "#222222",
+    "--text": "#e6e6e6",
+    "--text-dim": "#808080",
+    "--accent": "#ffffff",
+    "--accent-contrast": "#000000",
+    "--border": "rgba(255,255,255,0.14)",
+    "--radius": "2px",
+    "--blur": "0px",
+    "--font": "ui-monospace, 'SF Mono', Menlo, Consolas, 'Courier New', monospace"
+  }
+}

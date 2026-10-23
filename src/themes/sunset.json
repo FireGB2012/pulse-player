@@ -1,0 +1,20 @@
+{
+  "id": "sunset",
+  "name": "Sunset",
+  "author": "Pulse",
+  "layout": "floating",
+  "vars": {
+    "--bg": "#1a0f14",
+    "--bg-image": "linear-gradient(160deg, rgba(255,138,92,0.30) 0%, rgba(255,64,129,0.18) 45%, transparent 80%)",
+    "--surface": "rgba(255,255,255,0.07)",
+    "--surface-2": "rgba(255,255,255,0.11)",
+    "--text": "#fff3ec",
+    "--text-dim": "#c9a99a",
+    "--accent": "#ff8a5c",
+    "--accent-contrast": "#2b0f05",
+    "--border": "rgba(255,255,255,0.11)",
+    "--radius": "18px",
+    "--blur": "14px",
+    "--font": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+  }
+}

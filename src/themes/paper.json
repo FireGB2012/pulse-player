@@ -1,0 +1,20 @@
+{
+  "id": "paper",
+  "name": "Paper (light)",
+  "author": "Pulse",
+  "layout": "classic",
+  "vars": {
+    "--bg": "#f6f3ee",
+    "--bg-image": "none",
+    "--surface": "#ffffff",
+    "--surface-2": "#ece8e1",
+    "--text": "#1b1b1f",
+    "--text-dim": "#6b6b76",
+    "--accent": "#d9480f",
+    "--accent-contrast": "#ffffff",
+    "--border": "rgba(0,0,0,0.09)",
+    "--radius": "14px",
+    "--blur": "0px",
+    "--font": "Georgia, 'Times New Roman', serif"
+  }
+}

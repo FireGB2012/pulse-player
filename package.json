@@ -1,0 +1,25 @@
+{
+  "name": "pulse-player",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Customizable Spotify player with JSON themes and JS add-ons (Android via Capacitor, PC later)",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5173",
+    "android:sync": "vite build && cap sync android",
+    "android:open": "cap open android",
+    "android:patch": "node scripts/patch-android.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/core": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
+    "vite": "^8.3.5"
+  }
+}
