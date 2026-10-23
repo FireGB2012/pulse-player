@@ -1,0 +1,21 @@
+{
+  "id": "synthwave",
+  "name": "Synthwave",
+  "author": "Pulse",
+  "layout": "floating",
+  "vars": {
+    "--bg": "#14002b",
+    "--bg-image": "linear-gradient(180deg, rgba(255,0,153,0.25) 0%, transparent 35%), repeating-linear-gradient(90deg, rgba(0,255,255,0.06) 0 1px, transparent 1px 48px), repeating-linear-gradient(0deg, rgba(0,255,255,0.06) 0 1px, transparent 1px 48px)",
+    "--surface": "rgba(255,255,255,0.06)",
+    "--surface-2": "rgba(255,255,255,0.11)",
+    "--text": "#fdf0ff",
+    "--text-dim": "#b48fd6",
+    "--accent": "#00f0ff",
+    "--accent-contrast": "#14002b",
+    "--border": "rgba(0,240,255,0.2)",
+    "--radius": "10px",
+    "--blur": "8px",
+    "--font": "'Orbitron', system-ui, sans-serif"
+  },
+  "css": ".np-art { box-shadow: 0 0 40px rgba(255,0,153,0.45), 0 0 0 2px #00f0ff; } .brand { text-shadow: 0 0 12px #ff0099; }"
+}

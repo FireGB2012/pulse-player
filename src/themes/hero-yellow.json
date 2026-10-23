@@ -1,0 +1,21 @@
+{
+  "id": "hero-yellow",
+  "name": "Hero Yellow",
+  "author": "Pulse",
+  "layout": "floating",
+  "vars": {
+    "--bg": "#0a1a3a",
+    "--bg-image": "linear-gradient(160deg, rgba(255,214,0,0.18) 0%, transparent 38%), radial-gradient(700px 420px at 100% 110%, rgba(30,90,220,0.45), transparent 65%)",
+    "--surface": "rgba(255,255,255,0.06)",
+    "--surface-2": "rgba(255,255,255,0.11)",
+    "--text": "#fff8d6",
+    "--text-dim": "#a9b8dd",
+    "--accent": "#ffd600",
+    "--accent-contrast": "#0a1a3a",
+    "--border": "rgba(255,214,0,0.18)",
+    "--radius": "14px",
+    "--blur": "10px",
+    "--font": "'Bungee', system-ui, sans-serif"
+  },
+  "css": ".brand, .title, .np-title { text-transform: uppercase; letter-spacing: 0.04em; } .playbtn { box-shadow: 0 0 0 4px #1e5adc, 0 10px 30px rgba(255,214,0,0.35); }"
+}

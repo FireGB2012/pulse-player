@@ -1,61 +1,64 @@
-// Lyrics add-on. Fetches time-synced lyrics from LRCLIB (https://lrclib.net),
-// a free community lyrics database, and highlights the current line.
+// Lyrics add-on. Time-synced lyrics from LRCLIB (https://lrclib.net), a free
+// community lyrics database, with optional translation and a karaoke mode.
 // Nothing is stored; lyrics are only shown while the track plays.
 
-const cache = new Map() // trackId -> { lines: [{t, text}] | null, plain: string | null }
-
-function parseLrc(lrc) {
-  const lines = []
-  for (const raw of lrc.split('\n')) {
-    const m = raw.match(/^\s*\[(\d+):(\d+(?:\.\d+)?)\]\s?(.*)$/)
-    if (m) lines.push({ t: (Number(m[1]) * 60 + Number(m[2])) * 1000, text: m[3] })
-  }
-  return lines.length ? lines : null
-}
-
-async function fetchLyrics(track) {
-  if (cache.has(track.id)) return cache.get(track.id)
-  const q = new URLSearchParams({
-    artist_name: track.artists?.[0]?.name ?? '',
-    track_name: track.name,
-    album_name: track.album?.name ?? '',
-    duration: String(Math.round((track.duration_ms ?? 0) / 1000)),
-  })
-  let result = { lines: null, plain: null }
-  try {
-    const res = await fetch('https://lrclib.net/api/get?' + q)
-    if (res.ok) {
-      const data = await res.json()
-      result = {
-        lines: data.syncedLyrics ? parseLrc(data.syncedLyrics) : null,
-        plain: data.plainLyrics ?? null,
-      }
-    }
-  } catch {
-    return { lines: null, plain: null, failed: true }
-  }
-  cache.set(track.id, result)
-  return result
-}
+import { fetchLyrics, lineAt, translateLines, LANGS, defaultLang } from '../core/lyrics.js'
+import { openKaraoke } from '../views/modes.js'
 
 export default {
   id: 'lyrics',
   name: 'Lyrics',
-  version: '1.0.0',
-  description: 'Synced lyrics (from LRCLIB). Tap a line to jump to it.',
+  version: '1.1.0',
+  description: 'Synced lyrics (from LRCLIB). Tap a line to jump to it. Translate + karaoke mode.',
   setup(api) {
     api.ui.addPanel({
       id: 'lyrics',
       title: 'Lyrics',
       icon: 'note',
       render(container) {
+        const bar = document.createElement('div')
+        bar.className = 'lyrics-bar'
         const box = document.createElement('div')
         box.className = 'lyrics'
-        container.append(box)
+        container.append(bar, box)
 
         let lines = null
+        let translated = null
         let active = -1
         let token = 0
+
+        // ---- toolbar: translate + karaoke ----
+        const mkBtn = (label, onClick) => {
+          const b = document.createElement('button')
+          b.className = 'chip'
+          b.textContent = label
+          b.onclick = onClick
+          bar.append(b)
+          return b
+        }
+        const transBtn = mkBtn('', () => {
+          const cur = api.storage.get('translate', '')
+          api.ui.sheet({
+            title: 'Translate lyrics to',
+            items: [
+              { label: 'Off', active: !cur, onClick: () => setLang('') },
+              ...LANGS.map(([code, name]) => ({ label: name, active: cur === code, onClick: () => setLang(code) })),
+            ],
+          })
+        })
+        mkBtn('🎤 Karaoke', () => openKaraoke())
+        const drawTransBtn = () => {
+          const cur = api.storage.get('translate', '')
+          transBtn.textContent = cur ? '🌐 ' + (LANGS.find(([c]) => c === cur)?.[1] ?? cur) : '🌐 Translate'
+          transBtn.classList.toggle('on', !!cur)
+        }
+        function setLang(code) {
+          api.storage.set('translate', code)
+          drawTransBtn()
+          load(api.player.state.track)
+        }
+        if (api.storage.get('translate', null) === null) api.storage.set('translate', '')
+        drawTransBtn()
 
         const msg = (t) => {
           box.replaceChildren()
@@ -68,42 +71,77 @@ export default {
         async function load(track) {
           const mine = ++token
           lines = null
+          translated = null
           active = -1
           if (!track) return msg('Nothing playing')
           msg('Looking up lyrics...')
           const res = await fetchLyrics(track)
           if (mine !== token) return
+          const lang = api.storage.get('translate', '')
           if (res.lines) {
             lines = res.lines
-            box.replaceChildren(
-              ...lines.map((l, i) => {
-                const d = document.createElement('div')
-                d.className = 'lyric-line'
-                d.textContent = l.text || '♪'
-                d.addEventListener('click', () => api.player.seek(l.t))
-                d.dataset.i = i
-                return d
-              }),
-            )
+            draw()
             highlight(api.player.state.progressMs)
+            if (lang) {
+              try {
+                translated = await translateLines(lines.map((l) => l.text), lang || defaultLang())
+                if (mine === token) draw(), highlight(api.player.state.progressMs)
+              } catch (e) {
+                if (mine === token) api.ui.toast(e.message)
+              }
+            }
           } else if (res.plain) {
             box.replaceChildren()
             const pre = document.createElement('div')
             pre.className = 'lyrics-plain'
             pre.textContent = res.plain
             box.append(pre)
+            if (lang) {
+              try {
+                const parts = res.plain.split('\n')
+                const tr = await translateLines(parts, lang)
+                if (mine !== token) return
+                pre.replaceChildren(
+                  ...parts.flatMap((p, i) => {
+                    const d = document.createElement('div')
+                    d.textContent = p || ' '
+                    const t = document.createElement('div')
+                    t.className = 'lyric-trans'
+                    t.textContent = tr[i] && tr[i] !== p ? tr[i] : ''
+                    return [d, t]
+                  }),
+                )
+              } catch {}
+            }
           } else {
             msg(res.failed ? 'Could not reach the lyrics service' : 'No lyrics found for this track')
           }
         }
 
+        function draw() {
+          active = -1
+          box.replaceChildren(
+            ...lines.map((l, i) => {
+              const d = document.createElement('div')
+              d.className = 'lyric-line'
+              d.dataset.i = i
+              d.textContent = l.text || '♪'
+              const tr = translated?.[i]
+              if (tr && tr !== l.text) {
+                const t = document.createElement('div')
+                t.className = 'lyric-trans'
+                t.textContent = tr
+                d.append(t)
+              }
+              d.addEventListener('click', () => api.player.seek(l.t))
+              return d
+            }),
+          )
+        }
+
         function highlight(ms) {
           if (!lines) return
-          let idx = -1
-          for (let i = 0; i < lines.length; i++) {
-            if (lines[i].t <= ms + 150) idx = i
-            else break
-          }
+          const idx = lineAt(lines, ms)
           if (idx === active) return
           active = idx
           box.querySelectorAll('.lyric-line.on').forEach((n) => n.classList.remove('on'))

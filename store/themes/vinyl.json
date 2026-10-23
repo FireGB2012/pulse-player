@@ -1,0 +1,21 @@
+{
+  "id": "vinyl",
+  "name": "Vinyl",
+  "author": "example",
+  "layout": "floating",
+  "vars": {
+    "--bg": "#14100c",
+    "--bg-image": "radial-gradient(700px 500px at 50% 0%, rgba(255,190,120,0.18), transparent 70%)",
+    "--surface": "rgba(255,240,220,0.06)",
+    "--surface-2": "rgba(255,240,220,0.11)",
+    "--text": "#fff4e6",
+    "--text-dim": "#bfa88f",
+    "--accent": "#ffb347",
+    "--accent-contrast": "#2a1600",
+    "--border": "rgba(255,240,220,0.12)",
+    "--radius": "18px",
+    "--blur": "12px",
+    "--font": "Georgia, serif"
+  },
+  "css": ".np-art { border-radius: 50%; animation: pulse-spin 24s linear infinite; } @keyframes pulse-spin { to { transform: rotate(360deg); } }"
+}

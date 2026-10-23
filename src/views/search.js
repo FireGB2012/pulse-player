@@ -1,12 +1,23 @@
 import * as sp from '../core/spotify.js'
 import * as player from '../core/player.js'
-import { h, icon, pickImage } from '../core/ui.js'
+import * as liked from '../core/likedcache.js'
+import * as mixes from '../core/mixes.js'
+import { h, icon, pickImage, fill } from '../core/ui.js'
 import { trackRow } from './library.js'
 
 const art = (url) => (url ? h('img', { class: 'art sm', src: url, loading: 'lazy', alt: '' }) : h('div', { class: 'art sm ph' }, icon('note', 20)))
 
 export function renderSearch(root, { go }) {
   const results = h('div', { class: 'list' }, h('div', { class: 'empty' }, 'Search songs, albums, artists, playlists'))
+  // instant results from your cached Liked Songs, shown while Spotify answers
+  const local = h('div', { class: 'list' })
+  liked.load()
+  function drawLocal(q) {
+    const hits = q ? liked.searchLocal(q, 6) : []
+    fill(local, 
+      ...(hits.length ? [h('h2', { class: 'sec' }, 'In your Liked Songs'), ...hits.map((t) => trackRow(t, () => mixes.playTracks([t])))] : []),
+    )
+  }
   const input = h('input', {
     class: 'field',
     type: 'search',
@@ -20,7 +31,8 @@ export function renderSearch(root, { go }) {
   input.addEventListener('input', () => {
     clearTimeout(timer)
     const q = input.value.trim()
-    if (!q) return results.replaceChildren(h('div', { class: 'empty' }, 'Search songs, albums, artists, playlists'))
+    drawLocal(q)
+    if (!q) return fill(results, h('div', { class: 'empty' }, 'Search songs, albums, artists, playlists'))
     timer = setTimeout(() => run(q), 350)
   })
 
@@ -36,7 +48,7 @@ export function renderSearch(root, { go }) {
       const artists = (r.artists?.items ?? []).filter(Boolean)
       const playlists = (r.playlists?.items ?? []).filter(Boolean)
 
-      results.replaceChildren(
+      fill(results, 
         ...section('Songs', tracks.map((t) => trackRow(t, () => player.playBody({ uris: [t.uri] })))),
         ...section(
           'Artists',
@@ -74,9 +86,9 @@ export function renderSearch(root, { go }) {
       )
       if (!results.children.length) results.append(h('div', { class: 'empty' }, 'Nothing found'))
     } catch (e) {
-      if (mine === seq) results.replaceChildren(h('div', { class: 'empty' }, h('p', {}, 'Search failed.'), h('small', {}, e.message)))
+      if (mine === seq) fill(results, h('div', { class: 'empty' }, h('p', {}, 'Search failed.'), h('small', {}, e.message)))
     }
   }
 
-  root.replaceChildren(h('h1', { class: 'title' }, 'Search'), input, results)
+  fill(root, h('h1', { class: 'title' }, 'Search'), input, local, results)
 }

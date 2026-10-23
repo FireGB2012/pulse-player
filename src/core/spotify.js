@@ -80,3 +80,60 @@ export const isSaved = async (uri) => {
 // Playlist payloads were renamed (tracks -> items, track -> item). Handle both.
 export const entryTrack = (e) => e?.item ?? e?.track ?? null
 export const playlistTotal = (p) => p?.items?.total ?? p?.tracks?.total ?? null
+
+// ---- queue / stats / history ----
+export const queue = () => api('/me/player/queue')
+// type: 'artists' | 'tracks', range: 'short_term' (4 weeks) | 'medium_term' (6 months) | 'long_term'
+export const top = (type, range = 'short_term', limit = 20) =>
+  api(`/me/top/${type}`, { query: { time_range: range, limit } })
+export const recentlyPlayed = (after) => api('/me/player/recently-played', { query: { limit: 50, after } })
+
+// ---- playlist editing (only works on playlists you own) ----
+export async function createPlaylist(name, description = '') {
+  const body = { name, description, public: false }
+  try {
+    return await api('/me/playlists', { method: 'POST', body })
+  } catch (e) {
+    if (e.status !== 404 && e.status !== 405) throw e
+    const u = await me()
+    return api(`/users/${encodeURIComponent(u.id)}/playlists`, { method: 'POST', body })
+  }
+}
+
+export async function addToPlaylist(id, uris, position) {
+  for (let i = 0; i < uris.length; i += 100) {
+    const chunk = uris.slice(i, i + 100)
+    await api(`/playlists/${id}/items`, {
+      method: 'POST',
+      body: { uris: chunk, ...(position != null ? { position: position + i } : {}) },
+    })
+  }
+}
+
+// Removes every occurrence of each uri.
+export async function removeFromPlaylist(id, uris) {
+  for (let i = 0; i < uris.length; i += 100) {
+    const list = uris.slice(i, i + 100).map((uri) => ({ uri }))
+    await api(`/playlists/${id}/items`, { method: 'DELETE', body: { items: list, tracks: list } })
+  }
+}
+
+// Every page of a paged endpoint. fetchPage(offset) -> { items, next, total }
+export async function allPages(fetchPage, onProgress) {
+  const out = []
+  let offset = 0
+  for (;;) {
+    const page = await fetchPage(offset)
+    const items = page?.items ?? []
+    out.push(...items)
+    offset += items.length
+    onProgress?.(out.length, page?.total ?? out.length)
+    if (!page?.next || !items.length) return out
+  }
+}
+
+export const allMyPlaylists = () => allPages(myPlaylists).then((l) => l.filter(Boolean))
+export const allPlaylistTracks = (id) =>
+  allPages((o) => playlistItems(id, o)).then((l) =>
+    l.map((e) => ({ track: entryTrack(e), addedAt: e?.added_at ?? null })).filter((x) => x.track && x.track.type !== 'episode'),
+  )

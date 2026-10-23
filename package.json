@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Customizable Spotify player with JSON themes and JS add-ons (Android via Capacitor, PC later)",
+  "description": "Customizable Spotify player with JSON themes and JS add-ons (Android via Capacitor, Windows via Electron)",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "vite build",
@@ -19,7 +19,13 @@
     "@capacitor/app": "^8.1.2",
     "@capacitor/browser": "^8.0.5",
     "@capacitor/core": "^8.5.3",
-    "@capacitor/preferences": "^8.0.1"
+    "@capacitor/preferences": "^8.0.1",
+    "@fontsource/bungee": "^5.3.0",
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/orbitron": "^5.3.0",
+    "@fontsource/press-start-2p": "^5.3.0",
+    "@fontsource/vt323": "^5.3.0",
+    "qrcode-generator": "^2.0.4"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.3",
@@ -41,7 +47,8 @@
       "!node_modules/**/*"
     ],
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "electron/icon.png"
     },
     "portable": {
       "artifactName": "Pulse-${version}-portable.exe"

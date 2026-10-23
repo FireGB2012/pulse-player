@@ -1,0 +1,21 @@
+{
+  "id": "hero-crimson",
+  "name": "Hero Crimson",
+  "author": "Pulse",
+  "layout": "classic",
+  "vars": {
+    "--bg": "#f4f1ee",
+    "--bg-image": "linear-gradient(180deg, rgba(150,10,20,0.10), transparent 40%)",
+    "--surface": "#ffffff",
+    "--surface-2": "#ece6e3",
+    "--text": "#1a0507",
+    "--text-dim": "#7a5a5d",
+    "--accent": "#a3121e",
+    "--accent-contrast": "#ffffff",
+    "--border": "rgba(163,18,30,0.16)",
+    "--radius": "8px",
+    "--blur": "0px",
+    "--font": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+  },
+  "css": ".tabs { border-top: 3px solid #a3121e; } .np-art { box-shadow: 0 24px 60px rgba(163,18,30,0.35); } .brand { color: #a3121e; }"
+}

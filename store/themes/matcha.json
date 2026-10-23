@@ -1,0 +1,20 @@
+{
+  "id": "matcha",
+  "name": "Matcha",
+  "author": "Pulse",
+  "layout": "classic",
+  "vars": {
+    "--bg": "#eef1e6",
+    "--bg-image": "none",
+    "--surface": "#ffffff",
+    "--surface-2": "#e1e7d4",
+    "--text": "#1f2a14",
+    "--text-dim": "#6b775c",
+    "--accent": "#5b7d2a",
+    "--accent-contrast": "#ffffff",
+    "--border": "rgba(31,42,20,0.1)",
+    "--radius": "20px",
+    "--blur": "0px",
+    "--font": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+  }
+}

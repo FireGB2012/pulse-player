@@ -3,6 +3,7 @@
 // interpolate progress locally so the UI stays smooth.
 
 import * as sp from './spotify.js'
+import * as settings from './settings.js'
 import { emitter } from './store.js'
 
 const bus = emitter()
@@ -44,8 +45,12 @@ function applyRemote(s) {
   state.durationMs = item?.duration_ms ?? 0
   state.shuffle = !!s.shuffle_state
   state.repeat = s.repeat_state ?? 'off'
-  state.volume = s.device.volume_percent ?? state.volume
-  state.contextUri = s.context?.uri ?? null
+  if (!fading) state.volume = s.device.volume_percent ?? state.volume
+  const ctx = s.context?.uri ?? null
+  if (ctx !== state.contextUri) {
+    state.contextUri = ctx
+    bus.emit('context', ctx)
+  }
   state.track = item
   lastSync = Date.now()
 
@@ -110,6 +115,48 @@ async function cmd(fn) {
   return true
 }
 
+// ---- volume fades ----
+let fading = false
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+export const canSetVolume = () => state.hasDevice && state.device?.supports_volume !== false
+
+export async function fadeVolume(from, to, ms) {
+  if (!canSetVolume()) return false
+  fading = true
+  try {
+    const steps = Math.max(2, Math.min(12, Math.round(ms / 400)))
+    for (let i = 1; i <= steps; i++) {
+      await sp.volume(from + ((to - from) * i) / steps)
+      if (i < steps) await sleep(ms / steps)
+    }
+    state.volume = to
+    bus.emit('state', state)
+    return true
+  } catch {
+    return false
+  } finally {
+    fading = false
+  }
+}
+
+// Start playback, optionally fading the volume in (Settings > Player).
+async function startPlaying(fn) {
+  if (!settings.get('fadeIn') || !canSetVolume()) return fn()
+  const target = state.volume || 50
+  fading = true
+  try {
+    await sp.volume(Math.round(target * 0.08))
+  } catch {}
+  try {
+    await fn()
+  } catch (e) {
+    fading = false
+    sp.volume(target).catch(() => {})
+    throw e
+  }
+  fadeVolume(Math.round(target * 0.08), target, settings.get('fadeInSeconds') * 1000)
+}
+
 export const toggle = () =>
   cmd(async () => {
     if (state.isPlaying) {
@@ -121,7 +168,7 @@ export const toggle = () =>
       state.isPlaying = true
       lastSync = Date.now()
       bus.emit('state', state)
-      await sp.play()
+      await startPlaying(() => sp.play())
     }
   })
 
@@ -165,6 +212,7 @@ export async function toggleLike() {
   bus.emit('state', state)
   try {
     await (want ? sp.saveItem(uri) : sp.removeItem(uri))
+    bus.emit('liked', state.track, want)
   } catch (e) {
     state.liked = !want
     bus.emit('state', state)
@@ -173,7 +221,13 @@ export async function toggleLike() {
 }
 
 // body: { uris: [...] } or { context_uri, offset: { uri } }
-export const playBody = (body) => cmd(() => sp.play(body, state.hasDevice ? undefined : pickedDevice()))
+export const playBody = (body) => cmd(() => startPlaying(() => sp.play(body, state.hasDevice ? undefined : pickedDevice())))
+
+export const addToQueue = (uri) => cmd(() => sp.queueAdd(uri))
+export async function getQueue() {
+  const q = await sp.queue()
+  return { current: q?.currently_playing ?? null, queue: (q?.queue ?? []).filter(Boolean) }
+}
 
 let preferredDevice = null
 export const pickedDevice = () => preferredDevice

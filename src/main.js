@@ -1,25 +1,42 @@
 import './styles.css'
+import '@fontsource/press-start-2p/400.css'
+import '@fontsource/vt323/400.css'
+import '@fontsource/caveat/600.css'
+import '@fontsource/bungee/400.css'
+import '@fontsource/orbitron/600.css'
 import { App as CapApp } from '@capacitor/app'
-import { h, icon, iconBtn, toast, pickImage, artistNames } from './core/ui.js'
+import { h, icon, iconBtn, toast, pickImage, artistNames, closeTopOverlay, confirmSheet } from './core/ui.js'
 import * as themes from './core/themes.js'
 import * as auth from './core/auth.js'
 import * as player from './core/player.js'
 import * as plugins from './core/plugins.js'
+import * as nav from './core/nav.js'
+import { isMiniWindow } from './core/desktop.js'
+import { startExtras } from './core/extras.js'
+import { parseThemeLink } from './core/share.js'
 import { renderLogin } from './views/login.js'
 import { renderLibrary, renderCollection } from './views/library.js'
 import { renderSearch } from './views/search.js'
 import { renderSettings } from './views/settings.js'
+import { renderYou, renderPage } from './views/you.js'
 import { createNowPlaying } from './views/nowplaying.js'
 import { openDevices, noDeviceSheet } from './views/devices.js'
+import { renderMiniWindow } from './views/miniwindow.js'
 
 const app = document.getElementById('app')
 themes.applyTheme()
+themes.startAutoThemes()
 
 let started = false
 let loginError = null
 
 async function boot() {
   await auth.restoreClientId()
+  if (isMiniWindow) {
+    // PC always-on-top mini window: the main window owns the login
+    auth.setPassive(true)
+    return renderMiniWindow(app)
+  }
   await auth.initAuth({
     onLogin: () => startApp(),
     onError: (e) => {
@@ -28,10 +45,28 @@ async function boot() {
       else toast(e.message)
     },
   })
+  listenForThemeLinks()
   if (!started) {
     if (auth.isLoggedIn()) startApp()
     else renderLogin(app, { error: loginError })
   }
+}
+
+// 10. pulse://theme/... links (QR codes / shared links) open the app and offer the theme
+function listenForThemeLinks() {
+  CapApp.addListener('appUrlOpen', async ({ url }) => {
+    if (!url.startsWith('pulse://theme/')) return
+    try {
+      const t = await parseThemeLink(url)
+      if (await confirmSheet({ title: `Add the theme "${t.name}"?`, okLabel: 'Add theme' })) {
+        const saved = themes.saveUserTheme(t)
+        themes.setTheme(saved.id)
+        toast(`"${saved.name}" added`)
+      }
+    } catch (e) {
+      toast(e.message)
+    }
+  }).catch(() => {})
 }
 
 function startApp() {
@@ -39,7 +74,7 @@ function startApp() {
   started = true
 
   const view = h('main', { class: 'view' })
-  const nav = h('nav', { class: 'tabs' })
+  const nav_ = h('nav', { class: 'tabs' })
   const np = createNowPlaying()
 
   // ---------- routing ----------
@@ -47,7 +82,7 @@ function startApp() {
   let current = { name: 'library' }
   const ctx = {
     go(name, params = {}) {
-      if (name === 'collection') stack.push(current)
+      if (name === 'collection' || name === 'page') stack.push(current)
       else stack.length = 0
       current = { name, params }
       draw()
@@ -57,26 +92,30 @@ function startApp() {
       draw()
     },
   }
+  nav.setNav({ go: ctx.go, back: ctx.back, closePlayer: () => np.close(), openPlayer: (tab) => np.open(tab) })
 
   function draw() {
     view.scrollTop = 0
     if (current.name === 'library') renderLibrary(view, ctx)
     else if (current.name === 'search') renderSearch(view, ctx)
+    else if (current.name === 'you') renderYou(view, ctx)
     else if (current.name === 'settings') renderSettings(view)
     else if (current.name === 'collection') renderCollection(view, current.params, ctx)
+    else if (current.name === 'page') renderPage(view, current.params, ctx)
     drawNav()
   }
 
+  const TABS = [
+    ['library', 'Library', 'library'],
+    ['search', 'Search', 'search'],
+    ['you', 'You', 'person'],
+    ['settings', 'Settings', 'settings'],
+  ]
   function drawNav() {
-    const base = current.name === 'collection' ? 'library' : current.name
-    nav.replaceChildren(
-      ...[
-        ['library', 'Library', 'library'],
-        ['search', 'Search', 'search'],
-        ['settings', 'Settings', 'settings'],
-      ].map(([id, label, ic]) =>
-        h('button', { class: base === id ? 'on' : '', onClick: () => ctx.go(id) }, icon(ic, 24), h('span', {}, label)),
-      ),
+    const base = current.name === 'collection' ? 'library' : current.name === 'page' ? 'you' : current.name
+    nav_.replaceChildren(
+      h('div', { class: 'side-brand' }, 'Pulse'),
+      ...TABS.map(([id, label, ic]) => h('button', { class: base === id ? 'on' : '', onClick: () => ctx.go(id) }, icon(ic, 24), h('span', {}, label))),
     )
   }
 
@@ -85,15 +124,9 @@ function startApp() {
   const mTitle = h('div', { class: 't' })
   const mArtist = h('div', { class: 's' })
   const mPlay = h('button', { class: 'ibtn', 'aria-label': 'Play or pause', onClick: (e) => (e.stopPropagation(), player.toggle()) })
+  const mNext = h('button', { class: 'ibtn mini-next', 'aria-label': 'Next', onClick: (e) => (e.stopPropagation(), player.next()) }, icon('next', 26))
   const mBar = h('div', { class: 'mini-bar' }, h('i', {}))
-  const mini = h(
-    'div',
-    { class: 'mini', onClick: () => np.open() },
-    mArt,
-    h('div', { class: 'meta' }, mTitle, mArtist),
-    mPlay,
-    mBar,
-  )
+  const mini = h('div', { class: 'mini', onClick: () => np.open() }, mArt, h('div', { class: 'meta' }, mTitle, mArtist), mPlay, mNext, mBar)
   mini.style.display = 'none'
 
   let lastArt = ''
@@ -136,16 +169,20 @@ function startApp() {
 
   // ---------- shell ----------
   const topbar = h('header', { class: 'topbar' }, h('div', { class: 'brand' }, 'Pulse'), iconBtn('devices', { title: 'Devices', onClick: openDevices }))
-  app.replaceChildren(h('div', { class: 'shell' }, topbar, view, mini, nav), np.el)
+  app.replaceChildren(h('div', { class: 'shell' }, topbar, view, mini, nav_), np.el)
 
   draw()
   plugins.loadAll()
   player.start()
+  startExtras()
 
   // Android back button
   CapApp.addListener('backButton', () => {
-    if (np.el.classList.contains('open')) np.close()
-    else if (current.name === 'collection') ctx.back()
+    const sheetRoot = document.querySelector('.sheet-root:not(.out)')
+    if (sheetRoot) return sheetRoot.click()
+    if (closeTopOverlay()) return
+    if (np.isOpen()) np.close()
+    else if (current.name === 'collection' || current.name === 'page') ctx.back()
     else if (current.name !== 'library') ctx.go('library')
     else CapApp.minimizeApp().catch(() => {})
   }).catch(() => {})

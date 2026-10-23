@@ -19,8 +19,19 @@ const SCOPES = [
   'user-library-modify',
   'playlist-read-private',
   'playlist-read-collaborative',
+  'playlist-modify-public', // duplicate finder, merge/split
+  'playlist-modify-private',
+  'user-top-read', // stats
+  'user-read-recently-played', // listening history
   'streaming', // for the PC Web Playback SDK later
 ].join(' ')
+
+// Scopes added after the first release. Older logins lack them until the user reconnects.
+export const NEW_SCOPES = ['user-top-read', 'user-read-recently-played', 'playlist-modify-private']
+export const hasScopes = (list = NEW_SCOPES) => {
+  const granted = (ls.get('tokens')?.scope ?? '').split(' ')
+  return list.every((s) => granted.includes(s))
+}
 
 export const isNative = Capacitor.isNativePlatform()
 
@@ -116,7 +127,22 @@ async function tokenRequest(params) {
     access: data.access_token,
     refresh: data.refresh_token ?? prev.refresh,
     expires: Date.now() + data.expires_in * 1000,
+    scope: data.scope ?? prev.scope ?? '',
   })
+}
+
+// Passive mode (PC mini window): never refresh tokens here, the main window
+// does that. Two windows refreshing at once would fight over the refresh token.
+let passive = false
+export const setPassive = (on) => (passive = on)
+
+async function waitForFreshToken() {
+  for (let i = 0; i < 20; i++) {
+    await new Promise((r) => setTimeout(r, 500))
+    const t = ls.get('tokens')
+    if (t && Date.now() < t.expires - 60_000) return t.access
+  }
+  throw new Error('Waiting for the main window to refresh the login')
 }
 
 export const isLoggedIn = () => !!ls.get('tokens')?.refresh
@@ -127,6 +153,7 @@ export async function getToken() {
   const t = ls.get('tokens')
   if (!t) throw new Error('Not logged in')
   if (Date.now() < t.expires - 60_000) return t.access
+  if (passive) return waitForFreshToken()
   refreshing ??= tokenRequest({ grant_type: 'refresh_token', refresh_token: t.refresh }).finally(
     () => (refreshing = null),
   )

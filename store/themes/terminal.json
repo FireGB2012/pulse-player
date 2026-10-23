@@ -1,0 +1,21 @@
+{
+  "id": "terminal",
+  "name": "Terminal",
+  "author": "Pulse",
+  "layout": "compact",
+  "vars": {
+    "--bg": "#030a03",
+    "--bg-image": "repeating-linear-gradient(0deg, rgba(0,255,70,0.04) 0 1px, transparent 1px 3px)",
+    "--surface": "#071407",
+    "--surface-2": "#0d200d",
+    "--text": "#4dff7a",
+    "--text-dim": "#2a9a48",
+    "--accent": "#4dff7a",
+    "--accent-contrast": "#030a03",
+    "--border": "rgba(77,255,122,0.25)",
+    "--radius": "0px",
+    "--blur": "0px",
+    "--font": "'VT323', monospace"
+  },
+  "css": "body { font-size: 18px; } .np-art { filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(3); }"
+}

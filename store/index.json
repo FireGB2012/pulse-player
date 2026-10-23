@@ -1,0 +1,15 @@
+{
+  "name": "Pulse store",
+  "themes": [
+    { "id": "synthwave", "name": "Synthwave", "author": "Pulse", "description": "Neon grid, cyan + pink, sci-fi font.", "preview": ["#14002b", "#00f0ff"], "url": "themes/synthwave.json" },
+    { "id": "comic-pop", "name": "Comic Pop", "author": "Pulse", "description": "Halftone dots, thick outlines, comic-book red.", "preview": ["#fff3b0", "#e63946"], "url": "themes/comic-pop.json" },
+    { "id": "terminal", "name": "Terminal", "author": "Pulse", "description": "Green-screen hacker vibes with a retro font.", "preview": ["#030a03", "#4dff7a"], "url": "themes/terminal.json" },
+    { "id": "matcha", "name": "Matcha", "author": "Pulse", "description": "Soft light green, calm and clean.", "preview": ["#eef1e6", "#5b7d2a"], "url": "themes/matcha.json" },
+    { "id": "vinyl", "name": "Vinyl", "author": "example", "description": "Warm record-store colors, spinning round art.", "preview": ["#14100c", "#ffb347"], "url": "themes/vinyl.json" }
+  ],
+  "addons": [
+    { "id": "clock", "name": "Clock", "author": "Pulse", "description": "A big clock + date tab in the player.", "url": "addons/clock.js" },
+    { "id": "window-title", "name": "Song in window title", "author": "Pulse", "description": "Shows the song on the PC taskbar.", "url": "addons/window-title.js" },
+    { "id": "hello-addon", "name": "Hello add-on", "author": "example", "description": "The example add-on: a toast + an info tab + a skip-twice button.", "url": "addons/hello-addon.js" }
+  ]
+}
