@@ -18,9 +18,21 @@ const TYPES = {
   '.woff2': 'font/woff2',
 }
 
-function startServer(root, port) {
+const DONE_PAGE = `<!doctype html><meta charset="utf-8"><title>Pulse</title>
+<body style="font-family:system-ui,sans-serif;background:#0b0b12;color:#f2f2f7;display:grid;place-items:center;height:100vh;margin:0;text-align:center">
+<div><h1 style="font-size:40px;margin:0 0 8px">✅ Logged in</h1><p style="color:#8e8ea0">You can close this tab and go back to Pulse.</p></div>`
+
+// onLogin(url): called when the browser comes back from the Spotify login
+// (http://127.0.0.1:<port>/?code=...). Without it, the app page is served as usual.
+function startServer(root, port, { onLogin } = {}) {
   const server = http.createServer((req, res) => {
-    const urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname)
+    const full = new URL(req.url, `http://127.0.0.1:${port}`)
+    if (onLogin && full.pathname === '/' && (full.searchParams.has('code') || full.searchParams.has('error'))) {
+      onLogin(full.toString())
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }).end(DONE_PAGE)
+      return
+    }
+    const urlPath = decodeURIComponent(full.pathname)
     let file = path.join(root, path.normalize(urlPath))
     if (!file.startsWith(root)) {
       res.writeHead(403).end()

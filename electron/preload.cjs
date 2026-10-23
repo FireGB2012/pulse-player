@@ -11,4 +11,7 @@ contextBridge.exposeInMainWorld('pulseDesktop', {
   closeMini: () => ipcRenderer.send('pulse:closeMini'),
   // cmd: 'playpause' | 'next' | 'previous' | 'like'
   onCommand: (fn) => ipcRenderer.on('pulse:command', (_e, cmd) => fn(cmd)),
+  // Spotify login happens in the normal browser; the result comes back here
+  openExternal: (url) => ipcRenderer.send('pulse:openExternal', url),
+  onAuthCallback: (fn) => ipcRenderer.on('pulse:authCallback', (_e, url) => fn(url)),
 })

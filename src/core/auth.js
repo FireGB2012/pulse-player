@@ -89,6 +89,7 @@ export async function login() {
   }).toString()
 
   if (isNative) await Browser.open({ url: url.toString() })
+  else if (window.pulseDesktop) window.pulseDesktop.openExternal(url.toString()) // PC: your normal browser
   else location.href = url.toString()
 }
 
@@ -175,6 +176,14 @@ export async function initAuth({ onLogin, onError }) {
     })
     return
   }
+  // PC: the browser lands on Pulse's local server, which hands the code back here
+  window.pulseDesktop?.onAuthCallback(async (url) => {
+    try {
+      if (await handleRedirect(url)) onLogin()
+    } catch (e) {
+      onError(e)
+    }
+  })
   const q = location.search
   if (q.includes('code=') || q.includes('error=')) {
     try {

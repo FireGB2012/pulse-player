@@ -34,6 +34,7 @@ export function renderLogin(root, { error } = {}) {
         setClientId(id)
         try {
           await login()
+          if (window.pulseDesktop) toast('Finish logging in in your browser, then come back here', 8000)
         } catch (e) {
           toast(e.message)
         }

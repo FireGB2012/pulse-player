@@ -150,6 +150,9 @@ ipcMain.on('pulse:configure', (e, opts) => {
   setHotkeys(opts?.hotkeys !== false)
   discord.configure({ enabled: opts?.discordEnabled, appId: String(opts?.discordAppId ?? '').trim() })
 })
+ipcMain.on('pulse:openExternal', (e, url) => {
+  if (e.sender === win?.webContents && /^https:\/\/accounts\.spotify\.com\//.test(url)) shell.openExternal(url)
+})
 ipcMain.on('pulse:openMini', openMini)
 ipcMain.on('pulse:closeMini', () => mini?.close())
 
@@ -157,7 +160,12 @@ app.on('second-instance', showMain)
 
 app.whenReady().then(async () => {
   try {
-    await startServer(path.join(__dirname, '..', 'dist'), PORT)
+    await startServer(path.join(__dirname, '..', 'dist'), PORT, {
+      onLogin: (url) => {
+        showMain()
+        win?.webContents.send('pulse:authCallback', url)
+      },
+    })
   } catch (e) {
     dialog.showErrorBox(
       'Pulse',
