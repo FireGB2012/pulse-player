@@ -1,7 +1,7 @@
 # Pulse
 
-A customizable Spotify player. Android app first (this repo), PC version next
-(same code, wrapped in Tauri). Themes are JSON files, add-ons are small JS files.
+A customizable Spotify player for Android and Windows (same code: Capacitor on the
+phone, Electron on PC). Themes are JSON files, add-ons are small JS files.
 Needs **Spotify Premium**.
 
 ## How it works (read this once)
@@ -90,7 +90,9 @@ Settings -> Themes: 9 built-in, a color/roundness/blur editor, **Save as theme**
 
 ## Add-ons
 
-Built-in: **Lyrics** (synced, from LRCLIB), **Sleep timer**, **Visualizer**.
+Built-in: **Lyrics** (synced, from LRCLIB, with translation + karaoke), **Sleep timer**
+(fades out), **Focus timer** (Pomodoro), **Visualizer**. More in the **Store**
+(Settings -> Themes/Add-ons -> Store), which reads `store/index.json` from this repo.
 Toggle them in Settings -> Add-ons, or import your own `.js` file
 (see `examples/hello-addon.js`). An add-on is an ES module:
 
@@ -112,14 +114,38 @@ API: `api.player` (`state`, `on`, `toggle`, `pause`, `resume`, `next`, `previous
 `api.spotify.fetch(path, opts)` (authenticated Web API call).
 Imported add-ons run with full access to your Spotify session: only import code you trust.
 
+## Features at a glance
+
+- **Looks:** hero + seasonal theme packs, auto theme by time of day, a theme per
+  playlist, vinyl/cassette/tape-deck skins, animated album gradient, theme from a
+  photo, font packs, arrange the player buttons, share themes as a link or QR code.
+- **Player:** swipe the art (left/right skip, down close), double-tap to like, queue,
+  long-press any song (play next, album, moods, note, add to playlist), big-art and
+  car modes, volume fade-in, shake to skip.
+- **You tab:** stats + weekly recap, forever listening history (saved on the device),
+  streaks, achievements, moods, notes, On this day, liked timeline, artist mix,
+  Guess the song, Party mode (guests send requests through ntfy.sh), wake-up alarm,
+  playlist tools (duplicates, merge, split).
+- **Android:** home-screen widget, themed notification controls, floating bubble,
+  resume when headphones connect (Settings -> Android extras).
+- **PC:** sidebar layout with lyrics beside the art, tray icon, Ctrl+Alt hotkeys,
+  always-on-top mini window, Discord "Listening to" status (Settings -> PC extras).
+
+Stats, history and the playlist tools need a few extra Spotify permissions: logins
+from before these features show a **Reconnect Spotify** button once.
+
 ## Project layout
 
 ```
-src/core/     auth (PKCE), spotify API client, player state, themes, add-on host
-src/views/    login, library, search, now playing, settings, devices
+src/core/     auth (PKCE), spotify API client, player state, themes, add-on host,
+              history, liked-songs cache, moods/notes, achievements, sharing, alarm
+src/views/    login, library, search, now playing, you (+ sub pages), settings
 src/themes/   built-in theme JSON files (drop a new .json here to add one)
 src/plugins/  built-in add-ons (drop a new .js here to add one)
-android/      Capacitor Android project (pulse://callback already registered)
+android/      Capacitor Android project + Pulse's native code (widget, notification,
+              bubble, headphones, alarm) in android/app/src/main/java/app/pulse/player
+electron/     PC app: window, local server, tray, hotkeys, mini window, Discord
+store/        the theme + add-on store list
 ```
 
 ## PC app (Windows .exe)

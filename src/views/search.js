@@ -14,7 +14,7 @@ export function renderSearch(root, { go }) {
   liked.load()
   function drawLocal(q) {
     const hits = q ? liked.searchLocal(q, 6) : []
-    fill(local, 
+    fill(local,
       ...(hits.length ? [h('h2', { class: 'sec' }, 'In your Liked Songs'), ...hits.map((t) => trackRow(t, () => mixes.playTracks([t])))] : []),
     )
   }
@@ -48,7 +48,7 @@ export function renderSearch(root, { go }) {
       const artists = (r.artists?.items ?? []).filter(Boolean)
       const playlists = (r.playlists?.items ?? []).filter(Boolean)
 
-      fill(results, 
+      fill(results,
         ...section('Songs', tracks.map((t) => trackRow(t, () => player.playBody({ uris: [t.uri] })))),
         ...section(
           'Artists',

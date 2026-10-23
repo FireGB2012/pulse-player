@@ -68,7 +68,7 @@ export function renderLibrary(root, { go }) {
   const seg = h('div', { class: 'seg' })
 
   function drawSeg() {
-    fill(seg, 
+    fill(seg,
       ...[
         ['playlists', 'Playlists'],
         ['liked', 'Liked Songs'],
@@ -107,7 +107,7 @@ export function renderLibrary(root, { go }) {
       fill(list, ...sorted.map(rowForPlaylist))
       if (!sorted.length) list.append(h('div', { class: 'empty' }, 'No playlists yet'))
     }
-    fill(body, 
+    fill(body,
       h('div', { class: 'toolbar' }, sortButton(PL_SORTS, () => ls.get('playlistSort', 'default'), (id) => (ls.set('playlistSort', id), draw()))),
       list,
     )
@@ -149,7 +149,7 @@ export function renderLibrary(root, { go }) {
       info.textContent = st.syncing
         ? 'Syncing your liked songs...'
         : `${st.count} songs` + (st.lastSync ? ` · synced ${new Date(st.lastSync).toLocaleString()}` : '')
-      fill(list, 
+      fill(list,
         ...tracks.slice(0, shown).map((t, i) => trackRow(t, () => mixes.playTracks(tracks.slice(i, i + 150)))),
       )
       if (tracks.length > shown)
@@ -241,7 +241,7 @@ export function renderCollection(root, { kind, id, uri, name, image, owner }, { 
     })
   }
 
-  fill(root, 
+  fill(root,
     h('button', { class: 'ibtn back', onClick: back, 'aria-label': 'Back' }, icon('back')),
     h(
       'div',
@@ -278,7 +278,7 @@ export function renderCollection(root, { kind, id, uri, name, image, owner }, { 
       drawList()
     } catch (e) {
       if (e.status === 403 || e.status === 404) {
-        fill(list, 
+        fill(list,
           h('div', { class: 'empty' }, h('p', {}, 'Spotify only lets Pulse list songs for playlists you own or collaborate on.'), h('small', {}, 'You can still press Play above.')),
         )
       } else fill(list, errorBox(e, 'songs'))

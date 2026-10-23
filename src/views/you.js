@@ -49,7 +49,7 @@ export async function renderYou(root, { go }) {
   const ach = achievements.progress()
   const tile = (ic, label, onClick, sub) => h('button', { class: 'tile', onClick }, icon(ic, 26), h('span', {}, label), sub ? h('small', {}, sub) : null)
 
-  fill(root, 
+  fill(root,
     h('h1', { class: 'title' }, 'You'),
     hasScopes() ? null : reconnectNote('Stats and history'),
     h(
@@ -120,7 +120,7 @@ function renderStats(root, _p, { back }) {
   const topBox = h('div')
   const recap = h('div', { class: 'card' })
   const drawSeg = () =>
-    fill(seg, 
+    fill(seg,
       ...[
         ['short_term', '4 weeks'],
         ['medium_term', '6 months'],
@@ -133,7 +133,7 @@ function renderStats(root, _p, { back }) {
     fill(topBox, h('div', { class: 'empty' }, 'Loading...'))
     try {
       const [a, t] = await Promise.all([sp.top('artists', range, 10), sp.top('tracks', range, 20)])
-      fill(topBox, 
+      fill(topBox,
         h('h2', { class: 'sec' }, 'Top artists'),
         h(
           'div',
@@ -161,7 +161,7 @@ function renderStats(root, _p, { back }) {
     const s = history.summary(Date.now() - 7 * 86400_000)
     const hour = s.topHour == null ? '–' : `${String(s.topHour).padStart(2, '0')}:00`
     const max = Math.max(1, ...s.perHour)
-    fill(recap, 
+    fill(recap,
       h('h2', {}, '🗓️ Your week'),
       h(
         'div',
@@ -229,7 +229,7 @@ function renderHistory(root, _p, { back }) {
       toast('Import failed: ' + e.message)
     }
   })
-  fill(root, 
+  fill(root,
     ...pageHead(back, 'History', 'Spotify only remembers your last 50 plays. Pulse keeps them all, on this device.'),
     hasScopes(['user-read-recently-played']) ? null : reconnectNote('Full history'),
     h(
@@ -339,7 +339,7 @@ function renderMoods(root, _p, { back }) {
   const chips = h('div', { class: 'chips' })
   const body = h('div')
   const draw = () => {
-    fill(chips, 
+    fill(chips,
       ...tags.moods().map((m) => {
         const n = tags.tracksWithMoods([m.id]).length
         return h('button', { class: 'chip' + (selected.has(m.id) ? ' on' : ''), onClick: () => (selected.has(m.id) ? selected.delete(m.id) : selected.add(m.id), draw()) }, `${m.emoji} ${m.name} `, h('small', {}, n))
@@ -359,7 +359,7 @@ function renderMoods(root, _p, { back }) {
     )
     const ids = [...selected]
     const list = ids.length ? tags.tracksWithMoods(ids) : []
-    fill(body, 
+    fill(body,
       ids.length
         ? [
             h(
@@ -409,7 +409,7 @@ function renderNotes(root, _p, { back }) {
   const box = h('div', { class: 'list' })
   const draw = () => {
     const all = tags.notes()
-    fill(box, 
+    fill(box,
       ...(all.length
         ? all.map(({ track, note }) =>
             h(
@@ -440,7 +440,7 @@ function renderArtistMix(root, _p, { back }) {
       fill(chosen, ...picked.map((a) => h('button', { class: 'chip on', onClick: () => (picked.splice(picked.indexOf(a), 1), draw()) }, a.name + ' ✕')))
       playBtn.disabled = !picked.length
       const q = filter.value.trim().toLowerCase()
-      fill(list, 
+      fill(list,
         ...all
           .filter((a) => !q || a.name.toLowerCase().includes(q))
           .slice(0, 80)
@@ -476,7 +476,7 @@ function renderArtistMix(root, _p, { back }) {
 // ---------- 43. achievements ----------
 function renderAchievements(root, _p, { back }) {
   const p = achievements.progress()
-  fill(root, 
+  fill(root,
     ...pageHead(back, 'Achievements', `${p.done} of ${p.total} unlocked`),
     h(
       'div',
@@ -498,7 +498,7 @@ function renderAchievements(root, _p, { back }) {
 
 // ---------- 33 + 34. playlist tools ----------
 function renderPlaylistTools(root, _p, { back }) {
-  fill(root, 
+  fill(root,
     ...pageHead(back, 'Playlist tools', 'Works on playlists you own (Spotify rule).'),
     hasScopes(['playlist-modify-private']) ? null : reconnectNote('Editing playlists'),
     h(
@@ -568,7 +568,7 @@ async function findDuplicates(root, back) {
   }
   const multi = [...across.values()].filter((e) => e.lists.size > 1).sort((a, b) => b.lists.size - a.lists.size)
 
-  fill(out, 
+  fill(out,
     h('h2', { class: 'sec' }, `Inside the same playlist (${inside.reduce((n, x) => n + x.dups.length, 0)})`),
     inside.length
       ? inside.map(({ p, dups }) =>
@@ -639,7 +639,7 @@ async function pickPlaylists({ title, multiple, includeLiked }) {
     const options = [...(includeLiked ? [{ id: 'liked', name: 'Liked Songs' }] : []), ...lists]
     const box = h('div', { class: 'list' })
     const draw = () =>
-      fill(box, 
+      fill(box,
         ...options.map((p) =>
           h(
             'button',

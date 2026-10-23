@@ -19,7 +19,7 @@ export async function renderGame(root, _p, { back }) {
   }
   const pool = liked.all()
   const best = ls.get('gameBest', 0)
-  fill(root, 
+  fill(root,
     h('button', { class: 'ibtn back', onClick: back, 'aria-label': 'Back' }, icon('back')),
     h('h1', { class: 'title' }, 'Guess the song'),
     h('div', { class: 'card' }, h('p', {}, `${ROUNDS} rounds. A random liked song plays from the middle, the screen hides what it is, and you pick the right title. Faster answers score more.`), h('p', { class: 'dim small' }, `Best score: ${best}`)),
@@ -69,7 +69,7 @@ function startGame(pool) {
     status.textContent = `Round ${round}/${order.length} · ${score} pts`
     fill(reveal)
     o.el.classList.remove('right', 'wrong')
-    fill(choices, 
+    fill(choices,
       ...options.map((t) =>
         h('button', { class: 'game-choice', onClick: (e) => pick(t, answer, e.currentTarget) }, h('b', {}, t.name), h('small', {}, artistNames(t))),
       ),
@@ -111,7 +111,7 @@ function startGame(pool) {
     ls.set('gameBest', best)
     achievements.unlock('quiz-player')
     if (correct === order.length) achievements.unlock('quiz-perfect')
-    fill(choices, 
+    fill(choices,
       h('div', { class: 'game-end' }, h('b', {}, `${correct}/${order.length} right`), h('span', {}, `${score} points · best ${best}`)),
       h('button', { class: 'btn primary big', onClick: () => (o.close(), startGame(pool)) }, 'Play again'),
       h('button', { class: 'btn ghost big', onClick: () => o.close() }, 'Done'),

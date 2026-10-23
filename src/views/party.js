@@ -79,7 +79,7 @@ export function renderParty(root, _p, { back }) {
   const body = h('div')
   const draw = () => {
     if (!party) {
-      fill(body, 
+      fill(body,
         h(
           'div',
           { class: 'card' },
@@ -95,7 +95,7 @@ export function renderParty(root, _p, { back }) {
     qr.addData(link)
     qr.make()
     const live = party.es.readyState === 1
-    fill(body, 
+    fill(body,
       h(
         'div',
         { class: 'card center' },

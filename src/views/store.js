@@ -10,7 +10,7 @@ import { h, icon, toast, confirmSheet, promptSheet, fill } from '../core/ui.js'
 
 export function renderStore(root, _p, { back }) {
   const body = h('div', {}, h('div', { class: 'empty' }, 'Loading the store...'))
-  fill(root, 
+  fill(root,
     h('button', { class: 'ibtn back', onClick: back, 'aria-label': 'Back' }, icon('back')),
     h('h1', { class: 'title' }, 'Store'),
     h('p', { class: 'dim small' }, 'Themes and add-ons from a list on GitHub. ', h('button', { class: 'linkish', onClick: changeSource }, 'Change list')),
@@ -67,7 +67,7 @@ export function renderStore(root, _p, { back }) {
         ),
       )
 
-    fill(body, 
+    fill(body,
       h('h2', { class: 'sec' }, 'Themes'),
       h(
         'div',

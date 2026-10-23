@@ -15,7 +15,7 @@ export function renderAlarm(root, _p, { back }) {
       input.addEventListener('change', () => alarm.save({ [key]: input.checked, ...(key === 'enabled' ? { snoozeUntil: 0 } : {}) }))
       return h('div', { class: 'addon' }, h('div', { class: 'meta' }, h('div', { class: 't' }, label)), h('label', { class: 'switch' }, input, h('i', {})))
     }
-    fill(body, 
+    fill(body,
       h(
         'div',
         { class: 'card' },

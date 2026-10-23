@@ -115,7 +115,7 @@ export function renderSettings(root) {
     const tint = h('label', { class: 'toggle' }, h('input', { type: 'checkbox', checked: themes.albumTintEnabled() }), h('span', {}, 'Tint accent from album art'))
     tint.querySelector('input').addEventListener('change', (e) => themes.setAlbumTint(e.target.checked))
 
-    fill(themeSec, 
+    fill(themeSec,
       h('h2', {}, icon('palette', 20), ' Themes'),
       why ? h('p', { class: 'note' }, why) : null,
       grid,
@@ -175,7 +175,7 @@ export function renderSettings(root) {
       drawThemes()
     })
     const saveName = h('input', { class: 'field', placeholder: 'Name your theme' })
-    fill(editor, 
+    fill(editor,
       ...rows,
       layoutSel,
       h(
@@ -223,7 +223,7 @@ export function renderSettings(root) {
           ['Dark', themeVarsFromPalette(pal, true)],
           ['Light', themeVarsFromPalette(pal, false)],
         ]
-        fill(preview, 
+        fill(preview,
           h('img', { class: 'photo-thumb', src: url, alt: '' }),
           h('div', { class: 'chips' }, pal.map((c) => h('i', { class: 'dot', style: { background: `rgb(${c.r},${c.g},${c.b})` } }))),
           h(
@@ -298,7 +298,7 @@ export function renderSettings(root) {
     let layout = controlLayout()
     const list = h('div', { class: 'arrange' })
     const draw = () => {
-      fill(list, 
+      fill(list,
         ...layout.map((c, i) => {
           const def = CONTROLS.find((x) => x.id === c.id)
           const cb = h('input', { type: 'checkbox', checked: c.visible !== false, disabled: def.required })
@@ -337,7 +337,7 @@ export function renderSettings(root) {
   const addonSec = h('section', { class: 'card' })
   function drawAddons() {
     const list = plugins.listPlugins()
-    fill(addonSec, 
+    fill(addonSec,
       h('h2', {}, icon('puzzle', 20), ' Add-ons'),
       ...list.map((p) => {
         const sw = h('input', { type: 'checkbox', checked: p.enabled })

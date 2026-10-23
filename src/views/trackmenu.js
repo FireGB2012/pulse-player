@@ -97,7 +97,7 @@ export function openMoodPicker(t) {
   let chosen = new Set(tags.getMoods(t.uri))
   const grid = h('div', { class: 'chips' })
   const draw = () => {
-    fill(grid, 
+    fill(grid,
       ...tags.moods().map((m) =>
         h(
           'button',
