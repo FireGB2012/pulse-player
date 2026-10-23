@@ -10,7 +10,9 @@
     "preview": "vite preview --host 127.0.0.1 --port 5173",
     "android:sync": "vite build && cap sync android",
     "android:open": "cap open android",
-    "android:patch": "node scripts/patch-android.mjs"
+    "android:patch": "node scripts/patch-android.mjs",
+    "pc:start": "vite build && electron .",
+    "pc:build": "vite build && electron-builder --win portable --x64 --publish never"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
@@ -21,6 +23,28 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.3",
+    "electron": "^45.0.0",
+    "electron-builder": "^26.15.3",
     "vite": "^8.3.5"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "app.pulse.player",
+    "productName": "Pulse",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "Pulse-${version}-portable.exe"
+    }
   }
 }

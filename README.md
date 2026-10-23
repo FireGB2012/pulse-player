@@ -122,7 +122,12 @@ src/plugins/  built-in add-ons (drop a new .js here to add one)
 android/      Capacitor Android project (pulse://callback already registered)
 ```
 
-## Next: PC app
+## PC app (Windows .exe)
 
-Same `src/` wrapped in Tauri 2, plus the Spotify Web Playback SDK so the PC app
-is its own player (no second device needed). Not built yet.
+Same `src/` wrapped in Electron (`electron/`). It serves the app on
+`http://127.0.0.1:5173/`, so add that Redirect URI in the Spotify dashboard.
+Like the phone app it controls a Spotify device (it does not play audio itself).
+
+- GitHub builds it: `.github/workflows/windows-exe.yml` runs on every push;
+  download `pulse-windows-exe` from the Actions run, unzip, run `Pulse-*-portable.exe`.
+- Locally: `npm run pc:start` (run it) or `npm run pc:build` (exe in `release/`).
