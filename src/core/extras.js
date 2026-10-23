@@ -121,12 +121,13 @@ export function startExtras() {
 
   if (native.isAndroid) {
     applyNativeControls()
+    // the Android side already pressed play; just catch up
     native.on('headphonesConnected', () => {
-      if (settings.get('headphoneResume') && !player.state.isPlaying) {
-        player.toggle()
-        toast('🎧 Headphones connected, resuming')
-      }
+      toast('🎧 Headphones connected, resuming')
+      setTimeout(player.refresh, 800)
     })
+    native.on('mediaButton', () => setTimeout(player.refresh, 700))
+    native.on('bubbleClosed', () => settings.set('bubble', false))
     native.on('launchAction', ({ action }) => action === 'alarm' && alarm.ring())
     native.takeLaunchAction().then((a) => a === 'alarm' && alarm.ring())
   }

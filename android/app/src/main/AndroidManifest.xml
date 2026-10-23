@@ -30,7 +30,52 @@
                 <data android:scheme="pulse" android:host="callback" />
             </intent-filter>
 
+            <!-- Shared theme links / QR codes: pulse://theme/... -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="pulse" android:host="theme" />
+            </intent-filter>
+
         </activity>
+
+        <!-- Home-screen widget -->
+        <receiver
+            android:name=".PulseWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/pulse_widget_info" />
+        </receiver>
+
+        <!-- Play/pause/skip buttons of the widget, notification and bubble -->
+        <receiver
+            android:name=".ControlReceiver"
+            android:exported="false" />
+
+        <!-- Re-arm the alarm and extras after a restart -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Notification controls, floating bubble, headphone detection -->
+        <service
+            android:name=".PulseService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Remote controls for Spotify playback: notification buttons, a floating player bubble and headphone detection" />
+        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -55,4 +100,15 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- notification controls -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- floating bubble -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- wake-up alarm -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 </manifest>
