@@ -5,6 +5,7 @@
 import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
 import { Browser } from '@capacitor/browser'
+import { Preferences } from '@capacitor/preferences'
 import { ls } from './store.js'
 
 const AUTH_URL = 'https://accounts.spotify.com/authorize'
@@ -26,8 +27,23 @@ export const isNative = Capacitor.isNativePlatform()
 // These must match EXACTLY what you add in the Spotify dashboard.
 export const redirectUri = () => (isNative ? 'pulse://callback' : location.origin + '/')
 
+// The Client ID is also kept in a native preferences file on the phone, so it
+// comes back even if the WebView's localStorage gets cleared.
 export const getClientId = () => ls.get('clientId', '')
-export const setClientId = (id) => ls.set('clientId', String(id).trim())
+export const setClientId = (id) => {
+  const v = String(id).trim()
+  ls.set('clientId', v)
+  Preferences.set({ key: 'clientId', value: v }).catch(() => {})
+}
+
+export async function restoreClientId() {
+  try {
+    const saved = getClientId()
+    if (saved) return await Preferences.set({ key: 'clientId', value: saved })
+    const { value } = await Preferences.get({ key: 'clientId' })
+    if (value) ls.set('clientId', value)
+  } catch {}
+}
 
 const b64url = (buf) =>
   btoa(String.fromCharCode(...new Uint8Array(buf)))

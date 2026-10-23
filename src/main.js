@@ -19,6 +19,7 @@ let started = false
 let loginError = null
 
 async function boot() {
+  await auth.restoreClientId()
   await auth.initAuth({
     onLogin: () => startApp(),
     onError: (e) => {
